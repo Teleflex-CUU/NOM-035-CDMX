@@ -213,8 +213,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="instruc">
       <div class="instruc-title">📌 Instrucciones importantes</div>
       <ul>
-        <li>Considera las condiciones de tu trabajo durante el <strong>último año</strong></li>
-        <li>No existen respuestas correctas o incorrectas, tu opinión es lo más importante</li>
+        <li>Considera las condiciones de tu trabajo durante los <strong>últimos dos meses</strong></li>
+        <li>No existen respuestas correctas o incorrectas — tu opinión es lo más importante</li>
         <li>Tus respuestas son <strong>confidenciales</strong> y se usarán exclusivamente para mejorar las condiciones de trabajo</li>
         <li>Responde con sinceridad y completa el cuestionario en su totalidad</li>
       </ul>
@@ -408,16 +408,23 @@ function finalizarATS(){
 
 function buildSecciones(){
   secciones=[...G2_SECCIONES,...G3_SECCIONES,
-    {id:'cli-g2',name:'Atención a Clientes o Usuarios',desc:'¿En tu trabajo debes brindar servicio a clientes o usuarios?',type:'opc',guia:2,nums:[41,42,43]},
-    {id:'sup-g2',name:'Supervisión de Personal',desc:'¿Eres jefe de otros trabajadores?',type:'opc',guia:2,nums:[44,45,46]},
-    {id:'cli-g3',name:'Atención a Clientes (Guía III)',desc:'¿En tu trabajo debes brindar servicio a clientes o usuarios?',type:'opc',guia:3,nums:[65,66,67,68]},
-    {id:'sup-g3',name:'Supervisión de Personal (Guía III)',desc:'¿Eres jefe de otros trabajadores?',type:'opc',guia:3,nums:[69,70,71,72]},
+    {id:'cli-g2',name:'Atención a Clientes o Usuarios',desc:'¿En tu trabajo debes brindar servicio a clientes o usuarios?',type:'opc',guia:2,nums:[41,42,43],
+      qs:['Atiendo clientes o usuarios muy enojados','Mi trabajo me exige atender personas muy necesitadas de ayuda o enfermas','Para hacer mi trabajo debo demostrar sentimientos distintos a los míos']},
+    {id:'sup-g2',name:'Supervisión de Personal',desc:'¿Eres jefe de otros trabajadores?',type:'opc',guia:2,nums:[44,45,46],
+      qs:['Comunican tarde los asuntos de trabajo','Dificultan el logro de los resultados del trabajo','Ignoran las sugerencias para mejorar su trabajo']},
+    {id:'cli-g3',name:'Atención a Clientes (Guía III)',desc:'¿En tu trabajo debes brindar servicio a clientes o usuarios?',type:'opc',guia:3,nums:[65,66,67,68],
+      qs:['Atiendo clientes o usuarios muy enojados','Mi trabajo me exige atender personas muy necesitadas de ayuda o enfermas','Para hacer mi trabajo debo demostrar sentimientos distintos a los míos','Mi trabajo me exige atender situaciones de violencia']},
+    {id:'sup-g3',name:'Supervisión de Personal (Guía III)',desc:'¿Eres jefe de otros trabajadores?',type:'opc',guia:3,nums:[69,70,71,72],
+      qs:['Comunican tarde los asuntos de trabajo','Dificultan el logro de los resultados del trabajo','Cooperan poco cuando se necesita','Ignoran las sugerencias para mejorar su trabajo']},
   ];
 }
 
 function getQText(num,guia){
+  // Buscar en secciones principales
   const secs=guia===2?G2_SECCIONES:G3_SECCIONES;
   for(const s of secs){const i=s.nums.indexOf(num);if(i>=0)return s.qs[i];}
+  // Buscar en secciones opcionales
+  for(const s of secciones){if(s.qs&&s.nums){const i=s.nums.indexOf(num);if(i>=0)return s.qs[i];}}
   return '';
 }
 
@@ -562,16 +569,29 @@ async function enviarEncuesta(){
   document.getElementById('hdr-badge').textContent='Completado ✓';
 
   const send=async(payload)=>{
-    const p=new URLSearchParams(payload);
-    await fetch(GAS_URL+'?'+p.toString(),{method:'GET',redirect:'follow'});
+    const p=new URLSearchParams(
+      Object.fromEntries(Object.entries(payload).map(([k,v])=>[k,String(v??'')]))
+    );
+    const url=GAS_URL+'?'+p.toString();
+    // Intentar con redirect follow primero, luego no-cors
+    try{
+      await fetch(url,{method:'GET',redirect:'follow'});
+    }catch(e){
+      await fetch(url,{method:'GET',mode:'no-cors'});
+    }
   };
   try{
-    await send({action:'saveGRII',...base,score:sc.g2score,nivel:sc.g2nivel,...sc.g2cats});
-    await send({action:'saveGRIII',...base,score:sc.g3score,nivel:sc.g3nivel,...sc.g3cats});
+    const r1=await send({action:'saveGRII',...base,score:sc.g2score,nivel:sc.g2nivel,...sc.g2cats});
+    const r2=await send({action:'saveGRIII',...base,score:sc.g3score,nivel:sc.g3nivel,...sc.g3cats});
     const algSi=ATS_SEC1.some((_,i)=>atsAns[`s1_${i}`]==='si');
     if(algSi)await send({action:'saveGRI',...base,tipoEvento:'ATS',fechaEvento:fecha,
       rol:'Reportante',descripcion:'',sentimiento:'',atencion:sc.atencionATS});
-  }catch(e){console.warn('Error envío:',e);}
+    console.log('Enviado correctamente — G2:',sc.g2score,'(',sc.g2nivel,') G3:',sc.g3score,'(',sc.g3nivel,')');
+  }catch(e){
+    console.error('Error envío:',e);
+    // Guardar localmente como respaldo
+    try{localStorage.setItem('nom035_cdmx_backup_'+base.noemp, JSON.stringify({base,sc}));}catch(e2){}
+  }
 }
 </script>
 </body>
