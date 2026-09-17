@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Teleflex CDMX — NOM-035-STPS-2018</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D2B5A;--teal:#00796B;--white:#fff;--bg:#F0F4FA;
+  --text:#0F172A;--text2:#475569;--text3:#94A3B8;
+  --border:#E2E8F0;--red:#DC2626;--green:#16A34A;
+  --r:10px;--font:system-ui,-apple-system,sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+
+/* HEADER */
+.hdr{background:var(--navy);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.hdr-title{font-size:15px;font-weight:700}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px}
+.hdr-right{text-align:right;font-size:11px;color:rgba(255,255,255,.6)}
+
+/* PROGRESS */
+.prog-wrap{background:rgba(255,255,255,.15);height:4px}
+.prog-bar{height:4px;background:#38BDF8;transition:width .4s ease}
+
+/* CONTAINER */
+.container{max-width:680px;margin:0 auto;padding:20px 16px}
+
+/* CARD */
+.card{background:var(--white);border-radius:var(--r);border:1px solid var(--border);padding:20px;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.card-desc{font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.5}
+
+/* EMPLEADO */
+.emp-row{display:flex;gap:10px;align-items:flex-end;margin-bottom:12px}
+.inp-group{flex:1}
+.inp-group label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:4px}
+.inp{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);transition:border .15s}
+.inp:focus{outline:none;border-color:var(--navy)}
+.emp-info{background:var(--bg);border-radius:8px;padding:10px 14px;font-size:13px;line-height:1.7;margin-bottom:12px;border:1px solid var(--border)}
+.emp-info strong{color:var(--navy)}
+
+/* PREGUNTA */
+.q-num{font-size:10px;font-weight:700;color:var(--text3);margin-bottom:4px}
+.q-text{font-size:14px;color:var(--text);line-height:1.5;margin-bottom:12px;font-weight:500}
+.q-opts{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.q-opt{padding:8px 4px;border:1.5px solid var(--border);border-radius:8px;text-align:center;cursor:pointer;font-size:11px;color:var(--text2);transition:all .15s;background:var(--white)}
+.q-opt:hover{border-color:var(--navy);color:var(--navy)}
+.q-opt.sel{border-color:var(--navy);background:var(--navy);color:#fff;font-weight:700}
+.q-sep{height:1px;background:var(--border);margin:14px 0}
+
+/* SECCION HEADER */
+.sec-hdr{background:var(--navy);color:#fff;padding:12px 16px;border-radius:8px;margin-bottom:16px}
+.sec-hdr h3{font-size:13px;font-weight:700}
+.sec-hdr p{font-size:11px;color:rgba(255,255,255,.7);margin-top:3px}
+.sec-counter{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px}
+
+/* OPTS SCALE LABELS */
+.scale-labels{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}
+.scale-lbl{text-align:center;font-size:9px;color:var(--text3);font-weight:600}
+
+/* OPCIONAL */
+.opt-section{border:1.5px solid var(--border);border-radius:8px;padding:14px;margin-bottom:16px}
+.opt-section-title{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:4px}
+.opt-toggle{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.opt-toggle label{font-size:13px;color:var(--text)}
+.toggle-btns{display:flex;gap:6px}
+.toggle-btn{padding:5px 16px;border-radius:6px;border:1.5px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;background:var(--white);color:var(--text2)}
+.toggle-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* BOTONES NAV */
+.nav-btns{display:flex;gap:10px;justify-content:space-between;margin-top:8px}
+.btn{padding:12px 24px;border-radius:8px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);transition:opacity .15s}
+.btn:hover{opacity:.88}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-outline{background:var(--white);color:var(--navy);border:1.5px solid var(--border)}
+.btn-green{background:var(--green);color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* PANTALLA INICIO */
+#screen-inicio .logo{text-align:center;padding:30px 0 20px}
+#screen-inicio .logo h1{font-size:22px;font-weight:800;color:var(--navy)}
+#screen-inicio .logo p{font-size:13px;color:var(--text2);margin-top:6px}
+.instrucciones{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.7;color:#1E40AF}
+.instrucciones strong{display:block;margin-bottom:4px;font-size:13px}
+
+/* PANTALLA GRACIAS */
+#screen-gracias{text-align:center;padding:40px 20px}
+#screen-gracias .icon{font-size:56px;margin-bottom:16px}
+#screen-gracias h2{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:8px}
+#screen-gracias p{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:8px}
+
+/* GUIA I ATS */
+.ats-q{margin-bottom:12px}
+.ats-q p{font-size:13px;color:var(--text);margin-bottom:6px;line-height:1.5}
+.ats-opts{display:flex;gap:8px}
+.ats-opt{padding:6px 18px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:var(--white);color:var(--text2)}
+.ats-opt.sel-si{border-color:var(--red);background:var(--red);color:#fff}
+.ats-opt.sel-no{border-color:var(--green);background:var(--green);color:#fff}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0F172A;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;display:none}
+.toast.show{display:block}
+
+/* SPINNER */
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:500px){
+  .q-opts{grid-template-columns:1fr 1fr;gap:6px}
+  .scale-labels{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <div class="hdr-title">Teleflex — NOM-035-STPS-2018</div>
+    <div class="hdr-sub">Ciudad de México</div>
+  </div>
+  <div class="hdr-right" id="hdr-info">Cuestionario de Factores de Riesgo Psicosocial</div>
+</div>
+<div class="prog-wrap"><div class="prog-bar" id="prog" style="width:0%"></div></div>
+
+<div class="container">
+
+<!-- ══ INICIO ══ -->
+<div id="screen-inicio">
+  <div class="logo">
+    <h1>NOM-035-STPS-2018</h1>
+    <p>Identificación y Análisis de Factores de Riesgo Psicosocial</p>
+  </div>
+  <div class="card">
+    <div class="instrucciones">
+      <strong>Instrucciones importantes:</strong>
+      Para responder las preguntas considere las <strong>condiciones de su trabajo durante los últimos dos meses</strong>.<br>
+      • No existen respuestas correctas o incorrectas — su opinión es lo más importante.<br>
+      • Sus respuestas son <strong>confidenciales</strong> y se usarán exclusivamente para mejorar las condiciones de trabajo.<br>
+      • Responda con sinceridad y complete el cuestionario en su totalidad.
+    </div>
+    <div class="inp-group" style="margin-bottom:10px">
+      <label>Número de empleado</label>
+      <div style="display:flex;gap:8px">
+        <input class="inp" id="inp-noemp" type="text" placeholder="Ej. 11861" maxlength="20" style="flex:1"/>
+        <button class="btn btn-navy" onclick="buscarEmpleado()" style="padding:10px 16px;font-size:13px">Buscar</button>
+      </div>
+    </div>
+    <div id="emp-info-box" style="display:none" class="emp-info"></div>
+    <div id="inicio-error" style="color:var(--red);font-size:12px;margin-bottom:8px;display:none"></div>
+    <button class="btn btn-navy" id="btn-iniciar" onclick="iniciarEncuesta()" style="width:100%;display:none">
+      Iniciar cuestionario →
+    </button>
+  </div>
+</div>
+
+<!-- ══ GUÍA I — ATS ══ -->
+<div id="screen-ats" style="display:none">
+  <div class="card">
+    <div class="card-title">Guía de Referencia I</div>
+    <div class="card-desc">Cuestionario para identificar trabajadores que fueron sujetos a <strong>Acontecimientos Traumáticos Severos</strong>. Marque una "X" a la respuesta que corresponda.</div>
+
+    <div style="font-weight:700;color:var(--navy);margin-bottom:10px;font-size:13px">I. Acontecimiento traumático severo</div>
+    <div class="card-desc">¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo, un acontecimiento como los siguientes?</div>
+
+    <div id="ats-sec1"></div>
+
+    <div id="ats-secs-2-3-4" style="display:none">
+      <div style="font-weight:700;color:var(--navy);margin:14px 0 10px;font-size:13px">II. Recuerdos persistentes (último mes)</div>
+      <div id="ats-sec2"></div>
+      <div style="font-weight:700;color:var(--navy);margin:14px 0 10px;font-size:13px">III. Esfuerzo por evitar circunstancias parecidas (último mes)</div>
+      <div id="ats-sec3"></div>
+      <div style="font-weight:700;color:var(--navy);margin:14px 0 10px;font-size:13px">IV. Afectación (último mes)</div>
+      <div id="ats-sec4"></div>
+    </div>
+
+    <div class="nav-btns" style="margin-top:16px">
+      <div></div>
+      <button class="btn btn-navy" id="btn-ats-next" onclick="finalizarATS()">Continuar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SECCIONES ══ -->
+<div id="screen-preguntas" style="display:none">
+  <div id="sec-content"></div>
+</div>
+
+<!-- ══ GRACIAS ══ -->
+<div id="screen-gracias" style="display:none">
+  <div class="icon">✅</div>
+  <h2>¡Gracias por tu participación!</h2>
+  <p>Tu cuestionario ha sido enviado correctamente.<br>Tus respuestas son confidenciales y contribuyen a mejorar el entorno de trabajo en Teleflex CDMX.</p>
+  <p style="font-size:12px;color:var(--text3);margin-top:12px">Puedes cerrar esta ventana.</p>
+</div>
+
+</div><!-- /container -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  CONFIGURACIÓN
+// ══════════════════════════════════════════════════
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyT4Dow8eLvIcdT7WU-AUMf6j_a-CLlnNg_RHsMQnFhVNrtf4iqVK2y-MMkpigrcaQR/exec';
+const OPTS    = ['Siempre','Casi siempre','Algunas veces','Casi nunca','Nunca'];
+
+// Catálogo empleados
+const HC = [{"noemp":"11861","nombre":"Aura Enriqueta Vazquez","puesto":"Government Sales Manager","dept":"Surgical - LATAM","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"aura.vazquez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"11863","nombre":"Monica Graciela Lazcano","puesto":"Customer Service Team Lead, Government Accounts","dept":"Customer Experience and Customer Service","subdept":"Customer Experience and Customer Service","planta":"México City","turno":"Diurno","categoria":"Regular","email":"monica.lazcano@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"11864","nombre":"Fredy Rafaela","puesto":"Interventional Product Specialist, NOLA","dept":"Acute Care","subdept":"Acute Care","planta":"México City","turno":"Diurno","categoria":"Regular","email":"fredy.rafaela@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"11865","nombre":"Antonia Reyna","puesto":"Team Lead Process, Mexico, Credit to Cash","dept":"Finance - Accounting","subdept":"Finance - Accounting","planta":"México City","turno":"Diurno","categoria":"Regular","email":"antonia.reyna@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"11867","nombre":"Paola Villagran","puesto":"Government Sales Specialist","dept":"Surgical - LATAM","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"paola.villagran1@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"11870","nombre":"Adriana Joaquina Miranda","puesto":"Finance Manager","dept":"Finance - Commercial Finance Latin America","subdept":"Finance - Commercial Finance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"adriana.miranda@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"11874","nombre":"Rosario Perez Rul","puesto":"Executive Sales Specialist, Interventional","dept":"Surgical - LATAM","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"rosario.perez-rul@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"11876","nombre":"Adriana Puebla","puesto":"Sales Specialist, Western/Guadalajara Metro Area","dept":"Surgical - LATAM","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"adriana.puebla@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"11952","nombre":"Diana Olivia Cardenas","puesto":"Sr. Director, Latin America Finance","dept":"Finance - Commercial Finance Latin America","subdept":"Finance - Commercial Finance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"Diana.Cardenas@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"12358","nombre":"Maria Guadalupe Alvarado","puesto":"Director, LATAM Regulatory Affairs and Quality Assurance","dept":"QA/RA - QA/RA - Regional","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"Lupita.Alvarado@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"15425","nombre":"Ornella Sofia Reyes","puesto":"Senior Regional Logistics and Distribution Manager - Latin America","dept":"Global Supply Chain - Logistics and Distribution Americas","subdept":"Global Supply Chain - Logistics and Distribution","planta":"México City","turno":"Diurno","categoria":"Regular","email":"Sofia.Reyes@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"16059","nombre":"Carlos Aranda","puesto":"Customer Service Manager Mexico","dept":"Customer Experience and Customer Service","subdept":"Customer Experience and Customer Service","planta":"México City","turno":"Diurno","categoria":"Regular","email":"Carlos.Aranda@Teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"16257","nombre":"Daniela Alejandra Escalona","puesto":"Regulatory Affairs Specialist","dept":"QA/RA - QA/RA - Regional","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"Daniela.Escalona@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"16258","nombre":"Mercedes Fragoso","puesto":"Complaint Intake Specialist 2","dept":"QA/RA - Product Quality Assurance","subdept":"QA/RA - Design Assurance and Product Quality Assurance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"Mercedes.Fragoso@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"16405","nombre":"Diana Gonzalez","puesto":"Regulatory Affairs Specialist","dept":"QA/RA - PMRA","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"diana.gonzalez3@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"16661","nombre":"Jazmin Cecilia Mondragon","puesto":"Regulatory Affairs Specialist","dept":"QA/RA - QA/RA - Regional","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"jazmin.mondragon1@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"16714","nombre":"Carlos Alberto Canton","puesto":"Sr. Sales Operations Manager","dept":"Surgical - LATAM Sales Operations","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"carlos.canton@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"16722","nombre":"Karla Sabdi Zamudio","puesto":"Financial Analyst LATAM","dept":"Finance - Commercial Finance Latin America","subdept":"Finance - Commercial Finance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"karla.zamudio@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"17073","nombre":"Carmen Haydee Perez","puesto":"Human Resources Generalist, LATAM","dept":"Global HR - VEM Commercial Functions","subdept":"Global HR - Vascular and Emergency Medicine","planta":"México City","turno":"Diurno","categoria":"Regular","email":"haydee.perez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"17132","nombre":"Jose Alfredo Avalos","puesto":"Warehouse and Outbound Lead","dept":"Global Supply Chain - Logistics and Distribution Americas","subdept":"Global Supply Chain - Logistics and Distribution","planta":"México City","turno":"Diurno","categoria":"Regular","email":"alfredo.avalos@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"17810","nombre":"Viridiana Ramirez","puesto":"Senior Finance Manager","dept":"Finance - Commercial Finance Latin America","subdept":"Finance - Commercial Finance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"viridiana.ramirez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"18091","nombre":"Hanny Laura Cortes","puesto":"Supervisor, Credit to Cash - Mexico/CH/COL","dept":"Finance - Accounting","subdept":"Finance - Accounting","planta":"México City","turno":"Diurno","categoria":"Regular","email":"hanny.cortes@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"18167","nombre":"Mario Sebastian","puesto":"Financial Analyst","dept":"Finance - Commercial Finance Latin America","subdept":"Finance - Commercial Finance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"mario.suarez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"19624","nombre":"Jessica Garcia","puesto":"Finance Controller","dept":"Finance - Commercial Finance Latin America","subdept":"Finance - Commercial Finance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"jessica.garcia16@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"20212","nombre":"Guadalupe Elizabeth Cruz","puesto":"Team Process Lead, Credit to Cash - Mexico","dept":"Finance - Accounting","subdept":"Finance - Accounting","planta":"México City","turno":"Diurno","categoria":"Regular","email":"guadalupe.cruz@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"21016","nombre":"Stefani Serrano","puesto":"Sr. Regulatory Affairs Specialist","dept":"QA/RA - PMRA","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"stefani.serrano@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"21305","nombre":"Rodrigo Cortes","puesto":"Sr. Regulatory Affairs Specialist","dept":"ACIU QA/RA - Acute Care","subdept":"ACIU QA/RA - Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"rodrigo.cortes@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"21374","nombre":"Carlos David Soto","puesto":"L&D Senior Financial Analyst LATAM","dept":"Global Supply Chain - Logistics and Distribution Americas","subdept":"Global Supply Chain - Logistics and Distribution","planta":"México City","turno":"Diurno","categoria":"Regular","email":"david.soto@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"21399","nombre":"Irma Govea","puesto":"Sr. Regulatory Affairs Specialist","dept":"QA/RA - PMRA","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"irma.govea@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"21513","nombre":"Carmine Alberto Casañas","puesto":"Manager, L&D Quality - LMEX/LATAM","dept":"QA/RA - Quality Assurance, Global Logistics and Distribution","subdept":"QA/RA - Global Operations Quality","planta":"México City","turno":"Diurno","categoria":"Regular","email":"alberto.casanas@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"21628","nombre":"Cesar Emmanuel Torres","puesto":"Sr. Regulatory Affairs Specialist","dept":"ACIU QA/RA - International & UDI","subdept":"ACIU QA/RA - Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"cesar.torres@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"22794","nombre":"Clara Graciela Fajardo","puesto":"Sr. Credit to Cash Analyst - Mexico","dept":"Finance - Accounting","subdept":"Finance - Accounting","planta":"México City","turno":"Diurno","categoria":"Regular","email":"clara.fajardo@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"24200","nombre":"Mayte Martinez","puesto":"Sr. Regulatory Affairs Specialist","dept":"ACIU QA/RA - Interventional Urology","subdept":"ACIU QA/RA - Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"mayte.martinez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"26070","nombre":"Mar Mario Salazar","puesto":"Customer Service Specialist, Government Accounts","dept":"Customer Experience and Customer Service","subdept":"Customer Experience and Customer Service","planta":"México City","turno":"Diurno","categoria":"Regular","email":"mario.salazar@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"26622","nombre":"Luis Rodolfo Peña","puesto":"Regulatory Affairs Operations Specialist","dept":"QA/RA - Strategic RA and UDI","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"luis.pena@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"26944","nombre":"Carlos Antonio Sandoval","puesto":"Project Manager LATAM","dept":"Surgical - LATAM Marketing","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"carlos.sandoval@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"28807","nombre":"Jedidiah Pantaleon","puesto":"Sales Specialist, NE/Monterrey Metro Area","dept":"Surgical - LATAM","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"jedi.garcia@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"30893","nombre":"Jonnathan Acevedo","puesto":"Human Resources Specialist","dept":"HR - GSC, RAQA & CMA","subdept":"HR - RAQA & CMA","planta":"México City","turno":"Diurno","categoria":"Regular","email":"jonnathan.acevedo@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"31764","nombre":"Lilibeth Sanchez","puesto":"Sr. Manager, Regulatory Operations","dept":"QA/RA - Strategic RA and UDI","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"lilibeth.sanchez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"32121","nombre":"Agustin Morales","puesto":"Manager, Complaint Intake","dept":"ACIU QA/RA - Intake & Reporting","subdept":"ACIU QA/RA - Design Assurance & Post-Market Quality","planta":"México City","turno":"Diurno","categoria":"Regular","email":"agustin.morales@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"32586","nombre":"Lorena Quintanar","puesto":"Sr. Regulatory Affairs Operations Specialist","dept":"ACIU QA/RA - Regulatory Operations","subdept":"ACIU QA/RA - Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"lorena.quintanar@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"32599","nombre":"Elizabeth Gonzalez","puesto":"Senior QARA Intelligence Specialist","dept":"QA/RA - Strategic Affairs and Program Goverance","subdept":"QA/RA - Strategic Affairs and Program Goverance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"elizabeth.gonzalez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"32600","nombre":"Angel Gallegos","puesto":"Sales Specialist - NOCO, CA & Caribe","dept":"Surgical - LATAM","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"angel.gallegos@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"32694","nombre":"Tania Hernandez","puesto":"Complaint Intake Specialist 3","dept":"QA/RA - Product Quality Assurance","subdept":"QA/RA - Design Assurance and Product Quality Assurance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"tania.hernandez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"32764","nombre":"Jacqueline Albuja","puesto":"Product Manager","dept":"Surgical - LATAM Marketing","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"jacqueline.albuja@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"32765","nombre":"Jorge Toriz","puesto":"Regulatory Affairs Specialist","dept":"ACIU QA/RA - Acute Care","subdept":"ACIU QA/RA - Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"jorgearmando.toriz@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"32766","nombre":"Laura Gonzalez","puesto":"Complaint Reporting MDR/Vigilance Specialist 2","dept":"ACIU QA/RA - Intake & Reporting","subdept":"ACIU QA/RA - Design Assurance & Post-Market Quality","planta":"México City","turno":"Diurno","categoria":"Regular","email":"lauraguadalupe.gonzalez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"32977","nombre":"Zaira Gutierrez","puesto":"Complaint Intake Specialist 2","dept":"ACIU QA/RA - Intake & Reporting","subdept":"ACIU QA/RA - Design Assurance & Post-Market Quality","planta":"México City","turno":"Diurno","categoria":"Regular","email":"zaira.gutierrez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"32978","nombre":"Brenda Mercado","puesto":"Complaint Intake Specialist 2","dept":"ACIU QA/RA - Intake & Reporting","subdept":"ACIU QA/RA - Design Assurance & Post-Market Quality","planta":"México City","turno":"Diurno","categoria":"Regular","email":"brenda.mercado@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"32979","nombre":"Grecia Colina","puesto":"Regulatory Affairs Specialist","dept":"ACIU QA/RA - Acute Care","subdept":"ACIU QA/RA - Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"grecia.colina@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"33077","nombre":"Elsi Almazan","puesto":"Team Lead Complaint Intake","dept":"QA/RA - Product Quality Assurance","subdept":"QA/RA - Design Assurance and Product Quality Assurance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"elsi.almazan@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"33078","nombre":"Leslie Martinez","puesto":"Complaint Intake Specialist 2","dept":"QA/RA - Product Quality Assurance","subdept":"QA/RA - Design Assurance and Product Quality Assurance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"leslie.martinez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"33256","nombre":"Brenda Vergara","puesto":"Sr. Regulatory Affairs Operations Specialist","dept":"ACIU QA/RA - Regulatory Operations","subdept":"ACIU QA/RA - Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"brenda.vergara@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"33308","nombre":"Vianney Huerta","puesto":"Sr. Regulatory Affairs Operations Specialist","dept":"QA/RA - Strategic RA and UDI","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"abril.huerta@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"33350","nombre":"Edgar Garcia","puesto":"Assistant Global Operations Counsel","dept":"Legal","subdept":"Legal","planta":"México City","turno":"Diurno","categoria":"Regular","email":"edgar.garcia@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"33490","nombre":"Sofia Minjares","puesto":"Regulatory Affairs Operations Specialist","dept":"QA/RA - Strategic RA and UDI","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"sofia.minjares@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"33617","nombre":"Belem Gordillo","puesto":"Regulatory Affairs Operations Specialist","dept":"ACIU QA/RA - Regulatory Operations","subdept":"ACIU QA/RA - Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"belem.ramirez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"33620","nombre":"Luis Aguilar Velazquez","puesto":"Regulatory Affairs Specialist","dept":"QA/RA - PMRA","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"luisfernando.velazquez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"33625","nombre":"Maria Argueta","puesto":"General Office Assistant","dept":"Finance - Commercial Finance Latin America","subdept":"Finance - Commercial Finance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"maru.argueta@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"33764","nombre":"Mariano Vega","puesto":"Regulatory Affairs Specialist","dept":"ACIU QA/RA - Acute Care","subdept":"ACIU QA/RA - Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"mariano.vega@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"33933","nombre":"Carlos Jimenez","puesto":"Manager Total Rewards Latam","dept":"Global Compensation","subdept":"HR - Total Rewards","planta":"México City","turno":"Diurno","categoria":"Regular","email":"carlos.jimenez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"34430","nombre":"Tania Sanchez","puesto":"Regulatory Affairs Specialist","dept":"QA/RA - QA/RA - Regional","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"tania.sanchez2@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"35631","nombre":"Lucia Amezcua","puesto":"Sustainability Analyst","dept":"ACIU HR Sustainability","subdept":"HR - Total Rewards","planta":"México City","turno":"Diurno","categoria":"Regular","email":"lucia.amezcua@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"35635","nombre":"Elizabeth  Guillot","puesto":"Senior Product Manager","dept":"Acute Care","subdept":"Acute Care","planta":"México City","turno":"Diurno","categoria":"Regular","email":"elizabeth.guillot@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"35880","nombre":"Gabriela Gamboa","puesto":"Sr. Regulatory Affairs Associate","dept":"QA/RA - PMRA","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"gabriela.gamboa@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"35882","nombre":"Luis Vazquez","puesto":"Business Intelligence Analyst","dept":"Finance - Commercial Finance Latin America","subdept":"Finance - Commercial Finance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"omar.vazquez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"36007","nombre":"Mariana Moncada","puesto":"Sr. Digital Marketing Specialist","dept":"Surgical - LATAM Marketing","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"mariana.moncada@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"36156","nombre":"Glafira Ocaña","puesto":"Sr. Regulatory Affairs Operations Associate","dept":"QA/RA - Strategic RA and UDI","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"beatriz.ocana@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"36387","nombre":"Alejandra Emiliano","puesto":"Complaint Intake Specialist 2","dept":"QA/RA - Product Quality Assurance","subdept":"QA/RA - Design Assurance and Product Quality Assurance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"alejandra.emiliano@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"36530","nombre":"Gustavo Flavio Medina","puesto":"Regulatory Affairs Specialist","dept":"ACIU QA/RA - Interventional Urology","subdept":"ACIU QA/RA - Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"gustavo.medina@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"36615","nombre":"Cynthia Reyes","puesto":"Logistics & Distribution Assistant","dept":"Global Supply Chain - Logistics and Distribution Americas","subdept":"Global Supply Chain - Logistics and Distribution","planta":"México City","turno":"Diurno","categoria":"Regular","email":"cynthia.reyes@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"36639","nombre":"Carolina Suaste","puesto":"Regulatory Affairs Specialist","dept":"ACIU QA/RA - International & UDI","subdept":"ACIU QA/RA - Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"carolina.suaste@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"36787","nombre":"José Antonio García","puesto":"RA Data Management Specialist","dept":"ACIU QA/RA - Data Analytics & eSystems","subdept":"ACIU QA/RA - Quality Excellence & Systems","planta":"México City","turno":"Diurno","categoria":"Regular","email":"antonio.garcia@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"36914","nombre":"Cynthia Acosta","puesto":"Logistics Coordinator LATAM","dept":"Customer Experience and Customer Service","subdept":"Customer Experience and Customer Service","planta":"México City","turno":"Diurno","categoria":"Regular","email":"cynthia.acosta2@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"37203","nombre":"Victor Aguilar","puesto":"Regulatory Operations Manager","dept":"ACIU QA/RA - Data Analytics & eSystems","subdept":"ACIU QA/RA - Quality Excellence & Systems","planta":"México City","turno":"Diurno","categoria":"Regular","email":"victor.aguilar2@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"37235","nombre":"Ana Valdivia","puesto":"Associate Sales Operations Specialist","dept":"Surgical - LATAM Sales Operations","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"ana.valdivia@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"37403","nombre":"Rodolfo Rule","puesto":"Technical Service Engineer","dept":"Acute Care","subdept":"Acute Care","planta":"México City","turno":"Diurno","categoria":"Regular","email":"rodolfo.rule@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"38051","nombre":"Alberto Cardenas","puesto":"Associate Product Manager","dept":"Surgical - LATAM Marketing","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"alberto.cardenas@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"38379","nombre":"Ursula Hernandez","puesto":"Logistics and Distribution Coordinator LATAM","dept":"Global Supply Chain - Logistics and Distribution Americas","subdept":"Global Supply Chain - Logistics and Distribution","planta":"México City","turno":"Diurno","categoria":"Regular","email":"ursula.hernandez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"38636","nombre":"Juan Bata","puesto":"Credit & Collections Assistant","dept":"Finance - Accounting","subdept":"Finance - Accounting","planta":"México City","turno":"Diurno","categoria":"Regular","email":"juan.bata@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"39122","nombre":"Iran Cruz","puesto":"Commercial Contracts Specialist Latin America","dept":"Surgical - LATAM Sales Operations","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"iran.cruz@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"39155","nombre":"Margarita Lopez","puesto":"Sr. Sales Operations Specialist","dept":"Surgical - LATAM Sales Operations","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"margarita.lopez8@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"39924","nombre":"Anaí Concha","puesto":"Financial Analyst","dept":"Finance - Commercial Finance Latin America","subdept":"Finance - Commercial Finance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"anai.concha@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"40053","nombre":"Jorge Santana","puesto":"Quality Systems Specialist","dept":"ACIU QA/RA - DCC & Training","subdept":"ACIU QA/RA - Quality Excellence & Systems","planta":"México City","turno":"Diurno","categoria":"Regular","email":"jorge.santana@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"40054","nombre":"Guillermo Nava","puesto":"Quality Systems Specialist","dept":"QA/RA -  Global Product Life Cycle & Data Management","subdept":"QA/RA - Global Operations Quality","planta":"México City","turno":"Diurno","categoria":"Regular","email":"guillermo.nava@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"40330","nombre":"Mauricio Salgado","puesto":"International Sales Manager","dept":"Surgical - LATAM","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"mauricio.salgado@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"40380","nombre":"Laura Pérez","puesto":"Complaint Intake Specialist 2","dept":"QA/RA - Product Quality Assurance","subdept":"QA/RA - Design Assurance and Product Quality Assurance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"laura.perez11@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"40438","nombre":"Angel Trejo","puesto":"Regulatory Affairs Specialist","dept":"ACIU QA/RA - Acute Care","subdept":"ACIU QA/RA - Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"angel.trejo1@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"40440","nombre":"Susana Sánchez","puesto":"Quality Systems Specialist","dept":"QA/RA - Global Quality Supplier Engineering and Strategic Manufacturing","subdept":"QA/RA - Global Operations Quality","planta":"México City","turno":"Diurno","categoria":"Regular","email":"vivian.sanchez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"40441","nombre":"Verónica Sánchez","puesto":"Quality Assurance Specialist","dept":"QA/RA - Quality Assurance, Global Logistics and Distribution","subdept":"QA/RA - Global Operations Quality","planta":"México City","turno":"Diurno","categoria":"Regular","email":"veronica.sanchez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"40887","nombre":"Joselyn Garcia","puesto":"Government Sales Analyst","dept":"Surgical - LATAM","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"joselyn.garcia@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"41166","nombre":"Fatima Remirez","puesto":"Senior Product Specialist","dept":"Surgical - LATAM Marketing","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"fatima.remirez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"41638","nombre":"Miguel Cárdenas","puesto":"Quality Systems Specialist","dept":"QA/RA - Global Quality Supplier Engineering and Strategic Manufacturing","subdept":"QA/RA - Global Operations Quality","planta":"México City","turno":"Diurno","categoria":"Regular","email":"alan.cardenas@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"41640","nombre":"Janet Lizárraga","puesto":"Quality Systems Specialist","dept":"QA/RA -  Global Product Life Cycle & Data Management","subdept":"QA/RA - Global Operations Quality","planta":"México City","turno":"Diurno","categoria":"Regular","email":"janet.lizarraga@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"41684","nombre":"Sebastián Santana","puesto":"Complaint Intake Specialist 2","dept":"QA/RA - Product Quality Assurance","subdept":"QA/RA - Design Assurance and Product Quality Assurance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"sebastian.santana@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"41687","nombre":"Anaisa Chirinos","puesto":"Regulatory Affairs Operations Specialist","dept":"QA/RA - Strategic RA and UDI","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"anaisa.chirinos@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"41688","nombre":"Jaime Gutiérrez","puesto":"Regulatory Affairs Operations Specialist","dept":"QA/RA - Strategic RA and UDI","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"jaime.gutierrez6@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"41744","nombre":"Angel Zamora","puesto":"Inbound Coordinator","dept":"Global Supply Chain - Logistics and Distribution Americas","subdept":"Global Supply Chain - Logistics and Distribution","planta":"México City","turno":"Diurno","categoria":"Regular","email":"angel.zamora@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"41941","nombre":"Ramón Navarro","puesto":"Sr. Regulatory Affairs Specialist","dept":"QA/RA - Strategic RA and UDI","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"gilberto.navarro@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"42000","nombre":"Adriana Hernández","puesto":"Regulatory Affairs Operations Specialist","dept":"QA/RA - Strategic RA and UDI","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"adriana.hernandez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"42281","nombre":"Enrique Saldivar","puesto":"Commercial Director Mexico","dept":"Surgical - LATAM","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"enrique.saldivar@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"43068","nombre":"Jessica López","puesto":"Sr. Regulatory Affairs Specialist CIPS","dept":"QA/RA - Strategic RA and UDI","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"jessica.lopez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"43228","nombre":"César Rodríguez","puesto":"Sr. Regulatory Affairs Specialist","dept":"QA/RA - PMRA","subdept":"QA/RA - Global Regulatory Affairs","planta":"México City","turno":"Diurno","categoria":"Regular","email":"cesar.rodriguez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"43346","nombre":"Rodrigo Solorzano","puesto":"BI Financial Analyst","dept":"Finance - Commercial Finance Latin America","subdept":"Finance - Commercial Finance","planta":"México City","turno":"Diurno","categoria":"Regular","email":"rodrigo.solorzano@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"43349","nombre":"Jose Obregon","puesto":"National Sales Manager, Mexico","dept":"Surgical - LATAM","subdept":"Surgical - LATAM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"jose.obregon@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"43416","nombre":"Sarahbell Martínez","puesto":"Human Resources Generalist, Latin America","dept":"HR - Global Commercial, EMEA & OEM","subdept":"HR - Americas Commercial, EMEA & OEM","planta":"México City","turno":"Diurno","categoria":"Regular","email":"sarahbell.martinez@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"43805","nombre":"Alberto Rubio","puesto":"Commercial Director - Mexico","dept":"Acute Care","subdept":"Acute Care","planta":"México City","turno":"Diurno","categoria":"Regular","email":"alberto.rubio@teleflex.com","supervisor":"","ingreso":"","imss":""},{"noemp":"44291","nombre":"Eva Laguna","puesto":"Customer Service Specialist","dept":"Customer Experience and Customer Service","subdept":"Customer Experience and Customer Service","planta":"México City","turno":"Diurno","categoria":"Regular","email":"eva.laguna@teleflex.com","supervisor":"","ingreso":"","imss":""}];
+
+// ── PREGUNTAS Y SECCIONES ──
+const G2_SECCIONES = [{"id":"amb2","name":"Condiciones en el Ambiente de Trabajo","desc":"Considere las condiciones físicas y de seguridad de su lugar de trabajo.","nums":[1,2,3],"qs":["Mi trabajo me exige hacer mucho esfuerzo físico","Me preocupa sufrir un accidente en mi trabajo","Considero que las actividades que realizo son peligrosas"],"phase":"g2"},
+{"id":"carga2","name":"Carga de Trabajo","desc":"Piense en la cantidad y ritmo de trabajo que tiene.","nums":[4,5,6,7,8,9,10,11,12,13],"qs":["Por la cantidad de trabajo que tengo debo quedarme tiempo adicional a mi turno","Por la cantidad de trabajo que tengo debo trabajar sin parar","Considero que es necesario mantener un ritmo de trabajo acelerado","Mi trabajo exige que esté muy concentrado","Mi trabajo requiere que memorice mucha información","Mi trabajo exige que atienda varios asuntos al mismo tiempo","En mi trabajo soy responsable de cosas de mucho valor","Respondo ante mi jefe por los resultados de toda mi área de trabajo","En mi trabajo me dan órdenes contradictorias","Considero que en mi trabajo me piden hacer cosas innecesarias"],"phase":"g2"},
+{"id":"jornada2","name":"Jornada de Trabajo","desc":"Relacionadas con el tiempo destinado a su trabajo.","nums":[14,15,16,17],"qs":["Trabajo horas extras más de tres veces a la semana","Mi trabajo me exige laborar en días de descanso, festivos o fines de semana","Considero que el tiempo en el trabajo es mucho y perjudica mis actividades familiares o personales","Pienso en las actividades familiares o personales cuando estoy en mi trabajo"],"phase":"g2"},
+{"id":"control2","name":"Control sobre el Trabajo","desc":"Relacionadas con las decisiones que puede tomar en su trabajo.","nums":[18,19,20,21,22],"qs":["Mi trabajo permite que desarrolle nuevas habilidades","En mi trabajo puedo aspirar a un mejor puesto","Durante mi jornada de trabajo puedo tomar pausas cuando las necesito","Puedo decidir la velocidad a la que realizo mis actividades en mi trabajo","Puedo cambiar el orden de las actividades que realizo en mi trabajo"],"phase":"g2"},
+{"id":"cap2","name":"Capacitación e Información","desc":"Relacionadas con la capacitación e información que recibe.","nums":[23,24,25,26,27],"qs":["Me informan con claridad cuáles son mis funciones","Me explican claramente los resultados que debo obtener en mi trabajo","Me informan con quién puedo resolver problemas o asuntos de trabajo","Me permiten asistir a capacitaciones relacionadas con mi trabajo","Recibo capacitación útil para hacer mi trabajo"],"phase":"g2"},
+{"id":"lid2","name":"Liderazgo y Relaciones","desc":"Relacionadas con sus compañeros de trabajo y su jefe.","nums":[28,29,30,31,32,33,34,35,36,37,38,39,40],"qs":["Mi jefe tiene en cuenta mis puntos de vista y opiniones","Mi jefe ayuda a solucionar los problemas que se presentan en el trabajo","Puedo confiar en mis compañeros de trabajo","Cuando tenemos que realizar trabajo de equipo los compañeros colaboran","Mis compañeros de trabajo me ayudan cuando tengo dificultades","En mi trabajo puedo expresarme libremente sin interrupciones","Recibo críticas constantes a mi persona y/o trabajo","Recibo burlas, calumnias, difamaciones, humillaciones o ridiculizaciones","Se ignora mi presencia o se me excluye de las reuniones de trabajo y en la toma de decisiones","Se manipulan las situaciones de trabajo para hacerme parecer un mal trabajador","Se ignoran mis éxitos laborales y se atribuyen a otros trabajadores","Me bloquean o impiden las oportunidades que tengo para obtener ascenso o mejora en mi trabajo","He presenciado actos de violencia en mi centro de trabajo"],"phase":"g2"}];
+const G3_SECCIONES = [{"id":"amb3","name":"Condiciones Ambientales","desc":"Considere las condiciones ambientales de su centro de trabajo.","nums":[1,2,3,4,5],"qs":["El espacio donde trabajo me permite realizar mis actividades de manera segura e higiénica","Mi trabajo me exige hacer mucho esfuerzo físico","Me preocupa sufrir un accidente en mi trabajo","Considero que en mi trabajo se aplican las normas de seguridad y salud en el trabajo","Considero que las actividades que realizo son peligrosas"],"phase":"g3"},
+{"id":"carga3","name":"Carga y Ritmo de Trabajo","desc":"Piense en la cantidad y ritmo de trabajo que tiene.","nums":[6,7,8,9,10,11,12,13,14,15,16],"qs":["Por la cantidad de trabajo que tengo debo quedarme tiempo adicional a mi turno","Por la cantidad de trabajo que tengo debo trabajar sin parar","Considero que es necesario mantener un ritmo de trabajo acelerado","Mi trabajo exige que esté muy concentrado","Mi trabajo requiere que memorice mucha información","En mi trabajo tengo que tomar decisiones difíciles muy rápido","Mi trabajo exige que atienda varios asuntos al mismo tiempo","En mi trabajo soy responsable de cosas de mucho valor","Respondo ante mi jefe por los resultados de toda mi área de trabajo","En el trabajo me dan órdenes contradictorias","Considero que en mi trabajo me piden hacer cosas innecesarias"],"phase":"g3"},
+{"id":"jornada3","name":"Jornada y Relación Trabajo-Familia","desc":"Relacionadas con su jornada de trabajo.","nums":[17,18,19,20,21,22],"qs":["Trabajo horas extras más de tres veces a la semana","Mi trabajo me exige laborar en días de descanso, festivos o fines de semana","Considero que el tiempo en el trabajo es mucho y perjudica mis actividades familiares o personales","Debo atender asuntos de trabajo cuando estoy en casa","Pienso en las actividades familiares o personales cuando estoy en mi trabajo","Pienso que mis responsabilidades familiares afectan mi trabajo"],"phase":"g3"},
+{"id":"control3","name":"Control y Autonomía","desc":"Relacionadas con las decisiones que puede tomar.","nums":[23,24,25,26,27,28,29,30],"qs":["Mi trabajo permite que desarrolle nuevas habilidades","En mi trabajo puedo aspirar a un mejor puesto","Durante mi jornada de trabajo puedo tomar pausas cuando las necesito","Puedo decidir cuánto trabajo realizo durante la jornada laboral","Puedo decidir la velocidad a la que realizo mis actividades en mi trabajo","Puedo cambiar el orden de las actividades que realizo en mi trabajo","Los cambios que se presentan en mi trabajo dificultan mi labor","Cuando se presentan cambios en mi trabajo se tienen en cuenta mis ideas o aportaciones"],"phase":"g3"},
+{"id":"cap3","name":"Capacitación e Información","desc":"Relacionadas con la capacitación e información que recibe.","nums":[31,32,33,34,35,36],"qs":["Me informan con claridad cuáles son mis funciones","Me explican claramente los resultados que debo obtener en mi trabajo","Me explican claramente los objetivos de mi trabajo","Me informan con quién puedo resolver problemas o asuntos de trabajo","Me permiten asistir a capacitaciones relacionadas con mi trabajo","Recibo capacitación útil para hacer mi trabajo"],"phase":"g3"},
+{"id":"lid3","name":"Liderazgo","desc":"Relacionadas con el o los jefes con quien tiene contacto.","nums":[37,38,39,40,41],"qs":["Mi jefe ayuda a organizar mejor el trabajo","Mi jefe tiene en cuenta mis puntos de vista y opiniones","Mi jefe me comunica a tiempo la información relacionada con el trabajo","La orientación que me da mi jefe me ayuda a realizar mejor mi trabajo","Mi jefe ayuda a solucionar los problemas que se presentan en el trabajo"],"phase":"g3"},
+{"id":"rel3","name":"Relaciones con Compañeros","desc":"Relacionadas con sus compañeros de trabajo.","nums":[42,43,44,45,46],"qs":["Puedo confiar en mis compañeros de trabajo","Entre compañeros solucionamos los problemas de trabajo de forma respetuosa","En mi trabajo me hacen sentir parte del grupo","Cuando tenemos que realizar trabajo de equipo los compañeros colaboran","Mis compañeros de trabajo me ayudan cuando tengo dificultades"],"phase":"g3"},
+{"id":"entorno3","name":"Reconocimiento y Entorno Organizacional","desc":"Relacionadas con el reconocimiento y la estabilidad de su trabajo.","nums":[47,48,49,50,51,52,53,54,55,56],"qs":["Me informan sobre lo que hago bien en mi trabajo","La forma como evalúan mi trabajo en mi centro de trabajo me ayuda a mejorar mi desempeño","En mi centro de trabajo me pagan a tiempo mi salario","El pago que recibo es el que merezco por el trabajo que realizo","Si obtengo los resultados esperados en mi trabajo me recompensan o reconocen","Las personas que hacen bien el trabajo pueden crecer laboralmente","Considero que mi trabajo es estable","En mi trabajo existe continua rotación de personal","Siento orgullo de laborar en este centro de trabajo","Me siento comprometido con mi trabajo"],"phase":"g3"},
+{"id":"viol3","name":"Violencia Laboral","desc":"Relacionadas con actos de violencia laboral.","nums":[57,58,59,60,61,62,63,64],"qs":["En mi trabajo puedo expresarme libremente sin interrupciones","Recibo críticas constantes a mi persona y/o trabajo","Recibo burlas, calumnias, difamaciones, humillaciones o ridiculizaciones","Se ignora mi presencia o se me excluye de las reuniones de trabajo y en la toma de decisiones","Se manipulan las situaciones de trabajo para hacerme parecer un mal trabajador","Se ignoran mis éxitos laborales y se atribuyen a otros trabajadores","Me bloquean o impiden las oportunidades que tengo para obtener ascenso o mejora en mi trabajo","He presenciado actos de violencia en mi centro de trabajo"],"phase":"g3"}];
+
+// Invertidas (0-indexed)
+const G2_INV = new Set([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,33,34,35,36,37,38,39,40,41,42,43,44,45]);
+const G3_INV = new Set([1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,28,53,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71]);
+
+// Categorías para scoring
+const G2_CATS   = {"catAmbiente": [2, 1, 3], "catFactores": [4, 9, 5, 6, 7, 8, 41, 42, 43, 10, 11, 12, 13, 20, 21, 22, 18, 19, 26, 27], "catOrg": [14, 15, 16, 17], "catLiderazgo": [23, 24, 25, 28, 29, 30, 31, 32, 44, 45, 46], "catViolencia": [33, 34, 35, 36, 37, 38, 39, 40]};
+const G2_RANGOS = {"catAmbiente": [2, 4, 6, 8], "catFactores": [11, 19, 27, 37], "catOrg": [3, 5, 8, 11], "catLiderazgo": [9, 17, 26, 34], "catViolencia": [6, 9, 12, 15]};
+const G3_CATS   = {"catAmb3": [1, 3, 2, 4, 5], "catFactores3": [6, 12, 7, 8, 9, 10, 11, 65, 66, 67, 68, 13, 14, 15, 16, 25, 26, 27, 28, 23, 24, 29, 30, 35, 36], "catOrg3": [17, 18, 19, 20, 21, 22], "catLid3": [31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 69, 70, 71, 72], "catViol3": [57, 58, 59, 60, 61, 62, 63, 64], "catEntorno3": [47, 48, 49, 50, 51, 52, 53, 54, 55, 56]};
+const G3_RANGOS = {"catAmb3": [4, 8, 10, 13], "catFactores3": [14, 29, 44, 59], "catOrg3": [4, 6, 9, 12], "catLid3": [13, 28, 41, 57], "catViol3": [6, 9, 12, 15], "catEntorno3": [9, 13, 17, 22]};
+
+// ── ATS — preguntas ──
+const ATS_SEC1 = [
+  '¿Accidente que tenga como consecuencia la muerte, la pérdida de un miembro o una lesión grave?',
+  '¿Asaltos?','¿Actos violentos que derivaron en lesiones graves?','¿Secuestro?','¿Amenazas?',
+  '¿Cualquier otro que ponga en riesgo su vida o salud, y/o la de otras personas?'
+];
+const ATS_SEC2 = [
+  '¿Ha tenido recuerdos recurrentes sobre el acontecimiento que le provocan malestares?',
+  '¿Ha tenido sueños de carácter recurrente sobre el acontecimiento, que le producen malestar?'
+];
+const ATS_SEC3 = [
+  '¿Se ha esforzado por evitar todo tipo de sentimientos, conversaciones o situaciones que le puedan recordar el acontecimiento?',
+  '¿Se ha esforzado por evitar todo tipo de actividades, lugares o personas que motivan recuerdos del acontecimiento?',
+  '¿Ha tenido dificultad para recordar alguna parte importante del evento?',
+  '¿Ha disminuido su interés en sus actividades cotidianas?',
+  '¿Se ha sentido usted alejado o distante de los demás?',
+  '¿Ha notado que tiene dificultad para expresar sus sentimientos?',
+  '¿Ha tenido la impresión de que su vida se va a acortar, que va a morir antes que otras personas o que tiene un futuro limitado?'
+];
+const ATS_SEC4 = [
+  '¿Ha tenido usted dificultades para dormir?',
+  '¿Ha estado particularmente irritable o le han dado arranques de coraje?',
+  '¿Ha tenido dificultad para concentrarse?',
+  '¿Ha estado nervioso o constantemente en alerta?',
+  '¿Se ha sobresaltado fácilmente por cualquier cosa?'
+];
+
+// ══════════════════════════════════════════════════
+//  ESTADO GLOBAL
+// ══════════════════════════════════════════════════
+let empleado    = null;
+let g2Ans       = {};   // key: num-1 (0-idx) → scored value
+let g3Ans       = {};
+let atsAns      = {};
+let tieneClientes = null;
+let esSupervisor  = null;
+let secciones   = [];
+let secIdx      = 0;
+let fase        = 'ats'; // ats | g2 | g3
+
+// ══════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════
+function scored(oi, qNum0, guia) {
+  const inv = guia===2 ? G2_INV : G3_INV;
+  return inv.has(qNum0) ? (4-oi) : oi;
+}
+function nivelG2(s) { s=Number(s)||0; return s<=20?'Nulo':s<=45?'Bajo':s<=70?'Medio':s<=90?'Alto':'Muy Alto'; }
+function nivelG3(s) { s=Number(s)||0; return s<=50?'Nulo':s<=75?'Bajo':s<=99?'Medio':s<=140?'Alto':'Muy Alto'; }
+function nivelDom(rangos,s) { s=Number(s)||0; if(s<=rangos[0])return 'Nulo'; if(s<=rangos[1])return 'Bajo'; if(s<=rangos[2])return 'Medio'; if(s<=rangos[3])return 'Alto'; return 'Muy Alto'; }
+function toast(msg,ms=2500) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),ms); }
+function setProgress(pct) { document.getElementById('prog').style.width=pct+'%'; }
+function show(id) { ['screen-inicio','screen-ats','screen-preguntas','screen-gracias'].forEach(s=>document.getElementById(s).style.display='none'); document.getElementById(id).style.display=''; }
+
+// ══════════════════════════════════════════════════
+//  BUSCAR EMPLEADO
+// ══════════════════════════════════════════════════
+function buscarEmpleado() {
+  const noemp = document.getElementById('inp-noemp').value.trim();
+  const err   = document.getElementById('inicio-error');
+  const box   = document.getElementById('emp-info-box');
+  const btn   = document.getElementById('btn-iniciar');
+  err.style.display='none'; box.style.display='none'; btn.style.display='none';
+
+  if(!noemp){ err.textContent='Ingresa tu número de empleado.'; err.style.display='block'; return; }
+
+  const emp = HC.find(e=>String(e.noemp)===noemp);
+  if(!emp){ err.textContent='Número de empleado no encontrado. Verifica e intenta de nuevo.'; err.style.display='block'; return; }
+
+  empleado = emp;
+  box.innerHTML = `<strong>${emp.nombre}</strong><br>Puesto: ${emp.puesto||'—'}<br>Departamento: ${emp.dept||'—'}<br>Planta: ${emp.planta||'—'}`;
+  box.style.display='block';
+  btn.style.display='block';
+}
+
+document.getElementById('inp-noemp').addEventListener('keydown', e=>{ if(e.key==='Enter') buscarEmpleado(); });
+
+// ══════════════════════════════════════════════════
+//  INICIAR ENCUESTA
+// ══════════════════════════════════════════════════
+function iniciarEncuesta() {
+  if(!empleado) return;
+  document.getElementById('hdr-info').textContent = empleado.nombre;
+  renderATS();
+  show('screen-ats');
+  setProgress(5);
+}
+
+// ══════════════════════════════════════════════════
+//  GUÍA I — ATS
+// ══════════════════════════════════════════════════
+function renderATS() {
+  renderATSSec('ats-sec1', ATS_SEC1, 1);
+  renderATSSec('ats-sec2', ATS_SEC2, 2);
+  renderATSSec('ats-sec3', ATS_SEC3, 3);
+  renderATSSec('ats-sec4', ATS_SEC4, 4);
+}
+
+function renderATSSec(elId, pregs, sec) {
+  const el = document.getElementById(elId);
+  el.innerHTML = pregs.map((p,i)=>{
+    const key=`s${sec}_${i}`;
+    return `<div class="ats-q">
+      <p>${p}</p>
+      <div class="ats-opts">
+        <button class="ats-opt" onclick="answerATS('${key}','si',this)">Sí</button>
+        <button class="ats-opt" onclick="answerATS('${key}','no',this)">No</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function answerATS(key, val, btn) {
+  atsAns[key] = val;
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.ats-opt').forEach(b=>b.className='ats-opt');
+  btn.classList.add(val==='si'?'sel-si':'sel-no');
+  // Si alguna de sec1 es Sí, mostrar secs 2-3-4
+  const sec1Keys = ATS_SEC1.map((_,i)=>`s1_${i}`);
+  const algSi = sec1Keys.some(k=>atsAns[k]==='si');
+  document.getElementById('ats-secs-2-3-4').style.display = algSi?'block':'none';
+}
+
+function finalizarATS() {
+  // Verificar sec1 contestada
+  const sec1Done = ATS_SEC1.every((_,i)=>atsAns[`s1_${i}`]);
+  if(!sec1Done){ toast('Responde todas las preguntas de la sección I'); return; }
+  // Construir secciones G2 + G3
+  buildSecciones();
+  secIdx = 0;
+  renderSeccion();
+  show('screen-preguntas');
+  setProgress(10);
+}
+
+// ══════════════════════════════════════════════════
+//  CONSTRUIR SECCIONES
+// ══════════════════════════════════════════════════
+function buildSecciones() {
+  secciones = [...G2_SECCIONES, ...G3_SECCIONES];
+  // Agregar secciones opcionales al final de G2 y G3
+  secciones.push({
+    id:'clientes-q', name:'Atención a Clientes o Usuarios',
+    desc:'¿En tu trabajo debes brindar servicio a clientes o usuarios?',
+    type:'pregunta-opcional', guia:2, nums:[41,42,43]
+  });
+  secciones.push({
+    id:'supervisor-q', name:'Supervisión de Personal',
+    desc:'¿Eres jefe de otros trabajadores?',
+    type:'pregunta-opcional', guia:23, nums:[44,45,46]
+  });
+  secciones.push({
+    id:'clientes-g3', name:'Atención a Clientes (Guía III)',
+    desc:'¿En tu trabajo debes brindar servicio a clientes o usuarios?',
+    type:'pregunta-opcional', guia:3, nums:[65,66,67,68]
+  });
+  secciones.push({
+    id:'supervisor-g3', name:'Supervisión de Personal (Guía III)',
+    desc:'¿Eres jefe de otros trabajadores?',
+    type:'pregunta-opcional', guia:33, nums:[69,70,71,72]
+  });
+}
+
+// ══════════════════════════════════════════════════
+//  RENDER SECCIÓN
+// ══════════════════════════════════════════════════
+function renderSeccion() {
+  const sec = secciones[secIdx];
+  if(!sec) { enviarEncuesta(); return; }
+
+  const total   = secciones.length;
+  const pct     = Math.round(10 + (secIdx/total)*85);
+  setProgress(pct);
+
+  const el = document.getElementById('sec-content');
+
+  // Secciones opcionales (pregunta si/no)
+  if(sec.type==='pregunta-opcional') {
+    el.innerHTML = `
+    <div class="card">
+      <div class="card-title">${sec.name}</div>
+      <div class="card-desc">${sec.desc}</div>
+      <div class="opt-toggle">
+        <div class="toggle-btns">
+          <button class="toggle-btn ${getOpcional(sec.id)==='si'?'active':''}" onclick="setOpcional('${sec.id}','si')">Sí</button>
+          <button class="toggle-btn ${getOpcional(sec.id)==='no'?'active':''}" onclick="setOpcional('${sec.id}','no')">No</button>
+        </div>
+      </div>
+      <div id="opc-pregs" style="display:${getOpcional(sec.id)==='si'?'block':'none'}">
+        ${renderPregs(sec.nums, sec.guia)}
+      </div>
+      <div class="nav-btns">
+        <button class="btn btn-outline" onclick="prevSec()">← Anterior</button>
+        <button class="btn btn-navy" onclick="nextSec()">Siguiente →</button>
+      </div>
+    </div>`;
+    return;
+  }
+
+  // Sección normal de preguntas
+  const guia   = sec.phase==='g2' ? 2 : 3;
+  const title  = guia===2 ? 'Guía II' : 'Guía III';
+  const qStart = sec.nums[0];
+  const qEnd   = sec.nums[sec.nums.length-1];
+
+  el.innerHTML = `
+  <div class="card">
+    <div class="sec-hdr">
+      <h3>${sec.name}</h3>
+      <p>${sec.desc}</p>
+      <div class="sec-counter">${title} · Preguntas ${qStart}–${qEnd}</div>
+    </div>
+    <div class="scale-labels">
+      ${OPTS.map(o=>`<div class="scale-lbl">${o}</div>`).join('')}
+    </div>
+    ${renderPregs(sec.nums, guia)}
+    <div class="nav-btns">
+      ${secIdx>0?'<button class="btn btn-outline" onclick="prevSec()">← Anterior</button>':'<div></div>'}
+      <button class="btn btn-navy" onclick="nextSec()">${secIdx===secciones.length-1?'Finalizar ✓':'Siguiente →'}</button>
+    </div>
+  </div>`;
+}
+
+function renderPregs(nums, guia) {
+  return nums.map((num,i)=>{
+    const q0    = num-1;
+    const sec   = guia<=3 ? G2_SECCIONES.concat(G3_SECCIONES).find(s=>s.nums&&s.nums.includes(num)) : null;
+    const qtext = (guia===2||guia===23)
+      ? (G2_SECCIONES.flatMap(s=>s.qs.map((q,j)=>{return{num:s.nums[j],text:q}})).find(q=>q.num===num)||{text:''}).text
+      : (G3_SECCIONES.flatMap(s=>s.qs.map((q,j)=>{return{num:s.nums[j],text:q}})).find(q=>q.num===num)||{text:''}).text;
+    const ans  = guia===2||guia===23 ? g2Ans : g3Ans;
+    // Para opcionales G3 (65-72) también usar g3Ans
+    const actualAns = guia===33 ? g3Ans : ans;
+    const actualGuia = guia>3 ? (guia===23?2:3) : guia;
+
+    return `<div${i>0?` style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px"`:``}>
+      <div class="q-num">Pregunta ${num}</div>
+      <div class="q-text">${qtext}</div>
+      <div class="q-opts">
+        ${OPTS.map((opt,oi)=>`<button class="q-opt${actualAns[q0]!==undefined&&scored(oi,q0,actualGuia)===actualAns[q0]?' sel':''}"
+          onclick="answerQ(${num},${oi},${actualGuia})">${opt}</button>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function getOpcional(id) {
+  if(id==='clientes-q'||id==='clientes-g3') return tieneClientes;
+  if(id==='supervisor-q'||id==='supervisor-g3') return esSupervisor;
+  return null;
+}
+
+function setOpcional(id, val) {
+  if(id==='clientes-q'||id==='clientes-g3') tieneClientes=val;
+  if(id==='supervisor-q'||id==='supervisor-g3') esSupervisor=val;
+  document.querySelector('.toggle-btns .toggle-btn:first-child').classList.toggle('active',val==='si');
+  document.querySelector('.toggle-btns .toggle-btn:last-child').classList.toggle('active',val==='no');
+  document.getElementById('opc-pregs').style.display = val==='si'?'block':'none';
+}
+
+// ══════════════════════════════════════════════════
+//  RESPONDER PREGUNTA
+// ══════════════════════════════════════════════════
+function answerQ(num, oi, guia) {
+  const q0  = num-1;
+  const val = scored(oi, q0, guia);
+  if(guia===2||guia===23) g2Ans[q0] = val;
+  else g3Ans[q0] = val;
+
+  // Actualizar visual
+  const sec    = secciones[secIdx];
+  const allBtns = document.querySelectorAll(`.q-opts`);
+  const qIdx   = (sec.nums||[]).indexOf(num);
+  if(qIdx>=0 && allBtns[qIdx]) {
+    allBtns[qIdx].querySelectorAll('.q-opt').forEach((b,i)=>{
+      b.classList.toggle('sel', scored(i,q0,guia)===val);
+    });
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  NAVEGACIÓN
+// ══════════════════════════════════════════════════
+function nextSec() {
+  const sec = secciones[secIdx];
+  // Validar que todas las preguntas estén contestadas
+  const nums = sec.nums||[];
+  if(nums.length>0) {
+    const opt = getOpcional(sec.id);
+    if(opt==='si' || opt===null) {
+      const guia = (sec.phase==='g2'||sec.guia===2||sec.guia===23) ? 2 : 3;
+      const ans  = guia===2 ? g2Ans : g3Ans;
+      const sin  = nums.filter(n=>ans[n-1]===undefined);
+      if(sin.length>0) {
+        toast(`Faltan ${sin.length} pregunta(s) por responder`);
+        return;
+      }
+    }
+  }
+  secIdx++;
+  renderSeccion();
+  window.scrollTo(0,0);
+}
+
+function prevSec() {
+  if(secIdx>0) { secIdx--; renderSeccion(); window.scrollTo(0,0); }
+}
+
+// ══════════════════════════════════════════════════
+//  CALCULAR SCORES
+// ══════════════════════════════════════════════════
+function calcScores() {
+  // G2 scores por categoría
+  const g2cats = {};
+  for(const [cat, nums] of Object.entries(G2_CATS)) {
+    g2cats[cat] = nums.reduce((s,n)=>s+(g2Ans[n-1]||0),0);
+  }
+  // Agregar opcionales si aplica
+  if(tieneClientes==='si') {
+    g2cats.catFactores = (g2cats.catFactores||0) + [41,42,43].reduce((s,n)=>s+(g2Ans[n-1]||0),0);
+  }
+  if(esSupervisor==='si') {
+    g2cats.catLiderazgo = (g2cats.catLiderazgo||0) + [44,45,46].reduce((s,n)=>s+(g2Ans[n-1]||0),0);
+  }
+  const g2score = Object.values(g2cats).reduce((a,b)=>a+b,0);
+  const g2nivel = nivelG2(g2score);
+
+  // G3 scores por categoría
+  const g3cats = {};
+  for(const [cat, nums] of Object.entries(G3_CATS)) {
+    g3cats[cat] = nums.reduce((s,n)=>s+(g3Ans[n-1]||0),0);
+  }
+  if(tieneClientes==='si') {
+    g3cats.catFactores3 = (g3cats.catFactores3||0) + [65,66,67,68].reduce((s,n)=>s+(g3Ans[n-1]||0),0);
+  }
+  if(esSupervisor==='si') {
+    g3cats.catLid3 = (g3cats.catLid3||0) + [69,70,71,72].reduce((s,n)=>s+(g3Ans[n-1]||0),0);
+  }
+  const g3score = Object.values(g3cats).reduce((a,b)=>a+b,0);
+  const g3nivel = nivelG3(g3score);
+
+  // ATS
+  const sec1Keys  = ATS_SEC1.map((_,i)=>`s1_${i}`);
+  const algSiSec1 = sec1Keys.some(k=>atsAns[k]==='si');
+  const atencionATS = algSiSec1 ? evaluarATS() : 'No requiere';
+
+  return { g2score, g2nivel, g2cats, g3score, g3nivel, g3cats, atencionATS };
+}
+
+function evaluarATS() {
+  const sec2 = ATS_SEC2.some((_,i)=>atsAns[`s2_${i}`]==='si');
+  const sec3 = ATS_SEC3.filter((_,i)=>atsAns[`s3_${i}`]==='si').length >= 3;
+  const sec4 = ATS_SEC4.filter((_,i)=>atsAns[`s4_${i}`]==='si').length >= 2;
+  return (sec2||sec3||sec4) ? 'Requiere atención clínica' : 'No requiere';
+}
+
+// ══════════════════════════════════════════════════
+//  ENVIAR ENCUESTA
+// ══════════════════════════════════════════════════
+async function enviarEncuesta() {
+  const scores = calcScores();
+  const ts     = new Date().toISOString();
+  const fecha  = new Date().toLocaleDateString('es-MX');
+
+  const base = {
+    ts, fecha,
+    noemp: empleado.noemp, nombre: empleado.nombre,
+    puesto: empleado.puesto, categoria: empleado.categoria,
+    genero: '', edad: '',
+    dept: empleado.dept, subdept: empleado.subdept||'',
+    planta: 'México City', turno: 'Diurno',
+    supervisor: '', ingreso: '', imss: '',
+    manual: 'N'
+  };
+
+  const payloadG2 = {
+    action:'saveGRII', ...base,
+    score: scores.g2score, nivel: scores.g2nivel,
+    ...scores.g2cats
+  };
+
+  const payloadG3 = {
+    action:'saveGRIII', ...base,
+    score: scores.g3score, nivel: scores.g3nivel,
+    catLiderazgo:    scores.g3cats.catLid3||0,
+    catRelaciones:   scores.g3cats.catLid3||0,
+    catParticipacion:scores.g3cats.catOrg3||0,
+    catDistribucion: scores.g3cats.catEntorno3||0,
+    catCapacitacion: scores.g3cats.catFactores3||0,
+  };
+
+  const payloadATS = {
+    action:'saveGRI', ...base,
+    tipoEvento: 'ATS', fechaEvento: fecha,
+    rol: atsAns.s1_5==='si'?'Afectado':'Testigo',
+    descripcion: '', sentimiento: '', atencion: scores.atencionATS,
+  };
+
+  show('screen-gracias');
+  setProgress(100);
+
+  // Enviar en background
+  const send = async (payload) => {
+    const params = new URLSearchParams(payload);
+    await fetch(GAS_URL+'?'+params.toString(), {method:'GET',redirect:'follow'});
+  };
+
+  try {
+    await send(payloadG2);
+    await send(payloadG3);
+    // ATS solo si hubo acontecimiento
+    const algSi = ATS_SEC1.some((_,i)=>atsAns[`s1_${i}`]==='si');
+    if(algSi) await send(payloadATS);
+  } catch(e) {
+    console.warn('Error de envío:', e);
+  }
+}
+</script>
+</body>
+</html>
