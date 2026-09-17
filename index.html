@@ -360,6 +360,16 @@ function buscarEmpleado(){
   if(!noemp){err.textContent='Ingresa tu número de empleado.';err.style.display='block';return;}
   const emp=HC.find(e=>String(e.noemp)===noemp);
   if(!emp){err.textContent='Número de empleado no encontrado. Verifica e intenta de nuevo.';err.style.display='block';return;}
+  // Verificar si ya contestó en este dispositivo
+  const yaContesto=localStorage.getItem('nom035_cdmx_done_'+noemp);
+  if(yaContesto){
+    err.innerHTML='✅ <strong>Este número de empleado ya completó el cuestionario.</strong><br>Si crees que es un error, contacta a tu área de Recursos Humanos.';
+    err.style.display='block';
+    err.style.background='#F0FDF4';
+    err.style.borderLeftColor='#16A34A';
+    err.style.color='#15803D';
+    return;
+  }
   empleado=emp;
   document.getElementById('emp-nombre').textContent=emp.nombre;
   document.getElementById('emp-puesto').textContent=emp.puesto||'—';
@@ -374,6 +384,29 @@ function iniciarEncuesta(){
   if(!empleado)return;
   document.getElementById('hdr-sub').textContent=empleado.nombre;
   document.getElementById('hdr-badge').textContent='Guía I — ATS';
+  buildSecciones();
+  // Intentar recuperar progreso guardado
+  const tieneProgreso = recuperarProgreso();
+  if(tieneProgreso){
+    // Preguntar si quiere continuar donde se quedó
+    const continuar = confirm('Tienes un cuestionario en progreso. ¿Deseas continuar donde lo dejaste?');
+    if(continuar){
+      renderATS();
+      // Si ya contestó el ATS, ir directo a la sección guardada
+      const atsDone = ATS_SEC1.every((_,i)=>atsAns[`s1_${i}`]);
+      if(atsDone){
+        show('screen-preguntas');
+        renderSeccion();
+        setProgress(Math.round(10+(secIdx/secciones.length)*85));
+        return;
+      }
+    } else {
+      // Reiniciar
+      g2Ans={};g3Ans={};atsAns={};
+      tieneClientes=null;esSupervisor=null;secIdx=0;
+      localStorage.removeItem('nom035_cdmx_progreso');
+    }
+  }
   renderATS();show('screen-ats');setProgress(5);
 }
 
@@ -398,6 +431,7 @@ function answerATS(key,val,btn){
   btn.classList.add(val==='si'?'sel-si':'sel-no');
   const algSi=ATS_SEC1.some((_,i)=>atsAns[`s1_${i}`]==='si');
   document.getElementById('ats-secs-234').style.display=algSi?'block':'none';
+  guardarProgreso();
 }
 
 function finalizarATS(){
@@ -510,6 +544,36 @@ function answerQ(num,oi,guia){
   if(guia===2)g2Ans[q0]=val;else g3Ans[q0]=val;
   const container=document.getElementById(`opts-${guia}-${num}`);
   if(container)container.querySelectorAll('.q-opt').forEach((b,i)=>{b.classList.toggle('sel',scored(i,q0,guia)===val);});
+  // Guardar progreso en localStorage
+  guardarProgreso();
+}
+
+function guardarProgreso(){
+  try{
+    localStorage.setItem('nom035_cdmx_progreso', JSON.stringify({
+      noemp: empleado?.noemp,
+      g2Ans, g3Ans, atsAns,
+      tieneClientes, esSupervisor,
+      secIdx, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+}
+
+function recuperarProgreso(){
+  try{
+    const raw = localStorage.getItem('nom035_cdmx_progreso');
+    if(!raw) return false;
+    const p = JSON.parse(raw);
+    if(!p.noemp) return false;
+    // Solo recuperar si es el mismo empleado
+    if(empleado && String(p.noemp) !== String(empleado.noemp)) return false;
+    g2Ans = p.g2Ans || {};
+    g3Ans = p.g3Ans || {};
+    atsAns = p.atsAns || {};
+    tieneClientes = p.tieneClientes || null;
+    esSupervisor  = p.esSupervisor  || null;
+    return true;
+  }catch(e){ return false; }
 }
 
 function nextSec(){
@@ -587,6 +651,11 @@ async function enviarEncuesta(){
     if(algSi)await send({action:'saveGRI',...base,tipoEvento:'ATS',fechaEvento:fecha,
       rol:'Reportante',descripcion:'',sentimiento:'',atencion:sc.atencionATS});
     console.log('Enviado correctamente — G2:',sc.g2score,'(',sc.g2nivel,') G3:',sc.g3score,'(',sc.g3nivel,')');
+    // Marcar como completado y limpiar progreso
+    try{
+      localStorage.setItem('nom035_cdmx_done_'+base.noemp, new Date().toISOString());
+      localStorage.removeItem('nom035_cdmx_progreso');
+    }catch(e2){}
   }catch(e){
     console.error('Error envío:',e);
     // Guardar localmente como respaldo
