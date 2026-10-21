@@ -221,9 +221,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     </div>
 
     <div class="inp-group" style="margin-bottom:10px">
-      <label>Número de empleado</label>
+      <label>Número de empleado o nombre</label>
       <div class="inp-row">
-        <input class="inp" id="inp-noemp" type="text" placeholder="Ej. 12345" maxlength="20"/>
+        <input class="inp" id="inp-noemp" type="text" placeholder="Ej. 12345 o escribe tu nombre" maxlength="60"/>
         <button class="btn-buscar" onclick="buscarEmpleado()">Buscar</button>
       </div>
     </div>
@@ -445,9 +445,26 @@ function buscarEmpleado(){
   const box=document.getElementById('emp-info-box');
   const btn=document.getElementById('btn-iniciar');
   err.style.display='none';box.style.display='none';btn.style.display='none';
-  if(!noemp){err.textContent='Ingresa tu número de empleado.';err.style.display='block';return;}
-  const emp=HC.find(e=>String(e.noemp)===noemp);
-  if(!emp){err.textContent='Número de empleado no encontrado. Verifica e intenta de nuevo.';err.style.display='block';return;}
+  if(!noemp){err.textContent='Ingresa tu número de empleado o tu nombre.';err.style.display='block';return;}
+  // Buscar por noemp exacto si son dígitos, o por nombre (coincidencia parcial, sin acentos)
+  const soloDigitos=/^\d+$/.test(noemp);
+  let emp=null;
+  if(soloDigitos){
+    emp=HC.find(e=>String(e.noemp)===noemp);
+  }else{
+    const norm=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const q=norm(noemp);
+    const matches=HC.filter(e=>norm(e.nombre||'').includes(q));
+    if(matches.length===1){emp=matches[0];}
+    else if(matches.length>1){
+      err.innerHTML='Se encontraron varios empleados con ese nombre:<br><ul style="text-align:left;margin:6px 0 0 16px">'+
+        matches.slice(0,6).map(e=>`<li><strong>${e.nombre}</strong> — No. ${e.noemp} — ${e.puesto||''}</li>`).join('')+
+        (matches.length>6?`<li>… y ${matches.length-6} más. Sé más específico.</li>`:'')+
+        '</ul>';
+      err.style.display='block';return;
+    }
+  }
+  if(!emp){err.textContent='No se encontró ningún empleado con ese dato. Verifica e intenta de nuevo.';err.style.display='block';return;}
   // Verificar si ya contestó en este dispositivo
   const yaContesto=localStorage.getItem('nom035_cdmx_done_'+noemp);
   if(yaContesto){
