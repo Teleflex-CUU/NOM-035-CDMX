@@ -81,6 +81,19 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .emp-detail{font-size:12px;color:var(--text2)}
 .emp-detail span{font-weight:600;color:var(--text)}
 
+/* ── CAPTURA MANUAL ── */
+.manual-box{background:#FFFBEB;border:1.5px solid #F59E0B;border-radius:10px;
+  padding:14px 16px;margin:10px 0;display:none}
+.manual-box p{font-size:12.5px;color:#92400E;margin:0 0 10px}
+.manual-box label{font-size:11px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:4px;margin-top:8px}
+.manual-box input,.manual-box select{width:100%;padding:9px 12px;border:1.5px solid var(--border);
+  border-radius:8px;font-size:13px;font-family:var(--font);color:var(--text);box-sizing:border-box}
+.manual-box input:focus,.manual-box select:focus{outline:none;border-color:#F59E0B;box-shadow:0 0 0 3px rgba(245,158,11,.15)}
+.btn-manual-ok{margin-top:12px;width:100%;padding:11px;background:#92400E;color:#fff;
+  border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)}
+.btn-manual-ok:hover{opacity:.88}
+
 /* ── BTN INICIAR ── */
 .btn-iniciar{width:100%;padding:14px;background:linear-gradient(135deg,var(--navy),var(--navy2));
   color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;
@@ -230,6 +243,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     </div>
 
     <div class="err-msg" id="inicio-error"></div>
+
+    <!-- Captura manual cuando no se encuentra el empleado -->
+    <div class="manual-box" id="manual-box">
+      <p>⚠️ No encontramos tu número en el directorio. Captura tus datos para continuar — quedarán registrados como <strong>ingreso manual</strong>.</p>
+      <label>Nombre completo *</label>
+      <input id="m-nombre" type="text" placeholder="Ej. Juan Pérez García" maxlength="80"/>
+      <label>Número de empleado (si lo conoces)</label>
+      <input id="m-noemp" type="text" placeholder="Opcional" maxlength="20"/>
+      <label>Puesto</label>
+      <input id="m-puesto" type="text" placeholder="Ej. Operador de producción" maxlength="60"/>
+      <label>Departamento</label>
+      <input id="m-dept" type="text" placeholder="Ej. Ensamble" maxlength="60"/>
+      <button class="btn-manual-ok" onclick="confirmarManual()">Confirmar y continuar →</button>
+    </div>
 
     <div class="emp-card" id="emp-info-box">
       <div class="emp-name" id="emp-nombre"></div>
@@ -472,7 +499,14 @@ function buscarEmpleado(){
       }
     }
   }
-  if(!emp){err.textContent='No se encontró ningún empleado con ese dato. Verifica e intenta de nuevo.';err.style.display='block';return;}
+  if(!emp){
+    err.innerHTML='No se encontró ningún empleado con ese dato. <strong>¿Deseas capturar tus datos manualmente?</strong>';
+    err.style.display='block';
+    document.getElementById('manual-box').style.display='block';
+    document.getElementById('m-nombre').focus();
+    return;
+  }
+  document.getElementById('manual-box').style.display='none';
   // Verificar si ya contestó en este dispositivo
   const yaContesto=localStorage.getItem('nom035_cdmx_done_'+noemp);
   if(yaContesto){
@@ -492,6 +526,31 @@ function buscarEmpleado(){
   document.getElementById('emp-no').textContent=emp.noemp;
   box.style.display='block';btn.style.display='block';
 }
+function confirmarManual(){
+  const nombre=document.getElementById('m-nombre').value.trim();
+  const err=document.getElementById('inicio-error');
+  if(!nombre){
+    err.textContent='El nombre es obligatorio para continuar.';
+    err.style.display='block';
+    document.getElementById('m-nombre').focus();
+    return;
+  }
+  const noemp=document.getElementById('m-noemp').value.trim()||('M-'+Date.now());
+  const puesto=document.getElementById('m-puesto').value.trim()||'No especificado';
+  const dept=document.getElementById('m-dept').value.trim()||'No especificado';
+  empleado={noemp,nombre,puesto,categoria:'',dept,subdept:'',planta:'México City',turno:'Diurno',supervisor:'',ingreso:'',imss:'',manual:'S'};
+  err.style.display='none';
+  document.getElementById('manual-box').style.display='none';
+  document.getElementById('inp-noemp').value=nombre;
+  document.getElementById('emp-nombre').textContent=nombre;
+  document.getElementById('emp-puesto').textContent=puesto;
+  document.getElementById('emp-dept').textContent=dept;
+  document.getElementById('emp-planta').textContent='México City';
+  document.getElementById('emp-no').textContent=noemp+' (manual)';
+  document.getElementById('emp-info-box').style.display='block';
+  document.getElementById('btn-iniciar').style.display='block';
+}
+
 // Poblar datalist con todos los empleados
 (function(){
   const dl=document.getElementById('emp-list');
