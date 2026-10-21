@@ -476,6 +476,7 @@ function buscarEmpleado(){
     return;
   }
   empleado=emp;
+  document.getElementById('inp-noemp').value=emp.noemp+' — '+emp.nombre;
   document.getElementById('emp-nombre').textContent=emp.nombre;
   document.getElementById('emp-puesto').textContent=emp.puesto||'—';
   document.getElementById('emp-dept').textContent=emp.dept||'—';
