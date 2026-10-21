@@ -350,6 +350,88 @@ let empleado=null,g2Ans={},g3Ans={},atsAns={};
 let tieneClientes=null,esSupervisor=null;
 let secciones=[],secIdx=0;
 
+// ── Cola de pendientes (outbox en localStorage) ──────────────
+const QUEUE_KEY='nom035_cdmx_queue';
+const QUEUE_TTL=7*24*60*60*1000; // 7 días en ms
+
+function _queueAdd(item){
+  try{
+    const q=_queueGet();
+    q.push({...item,_addedAt:Date.now()});
+    localStorage.setItem(QUEUE_KEY,JSON.stringify(q));
+  }catch(_){}
+}
+function _queueRemove(idEnvio){
+  try{
+    const q=_queueGet().filter(x=>x.idEnvio!==idEnvio);
+    localStorage.setItem(QUEUE_KEY,JSON.stringify(q));
+  }catch(_){}
+}
+function _queueGet(){
+  try{return JSON.parse(localStorage.getItem(QUEUE_KEY)||'[]');}catch(_){return[];}
+}
+function _queuePurgeOld(){
+  try{
+    const now=Date.now();
+    const q=_queueGet().filter(x=>(now-(x._addedAt||0))<QUEUE_TTL);
+    localStorage.setItem(QUEUE_KEY,JSON.stringify(q));
+  }catch(_){}
+}
+async function _queueRetryPending(){
+  _queuePurgeOld();
+  const q=_queueGet();
+  if(!q.length)return;
+  console.log('[NOM035] Reintentando',q.length,'envío(s) pendiente(s)…');
+  for(const item of q){
+    try{
+      const payload={...item};delete payload._addedAt;
+      await _intentarEnvioSilencioso(payload);
+      _queueRemove(item.idEnvio);
+      console.log('[NOM035] Pendiente enviado:',item.idEnvio);
+    }catch(e){
+      console.warn('[NOM035] Pendiente aún falla:',item.idEnvio,e.message);
+    }
+  }
+  _actualizarGuardaBefore();
+}
+
+// Fetch silencioso (sin UI) para reintentos en background
+async function _intentarEnvioSilencioso(payload){
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),60000);
+  try{
+    const res=await fetch(GAS_URL,{
+      method:'POST',body:JSON.stringify(payload),
+      headers:{'Content-Type':'text/plain'},
+      signal:ctrl.signal,keepalive:true
+    });
+    clearTimeout(timer);
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const json=await res.json();
+    if(!json.ok)throw new Error(json.error||'GAS error');
+    return json;
+  }catch(err){clearTimeout(timer);throw err;}
+}
+
+// ── Estado de envíos en vuelo ────────────────────────────────
+// Rastrea qué guías han sido confirmadas para el envío actual
+let _pendienteATS=false,_pendienteGRII=false,_pendienteGRIII=false;
+let _confirmedATS=false,_confirmedGRII=false,_confirmedGRIII=false;
+let _idEnvioActual=null; // idEnvio compartido entre las 3 guías
+
+function _todoConfirmado(){
+  return(!_pendienteATS||_confirmedATS)&&(!_pendienteGRII||_confirmedGRII)&&_confirmedGRIII;
+}
+function _actualizarGuardaBefore(){
+  // Activar beforeunload solo si hay envíos pendientes no confirmados
+  const hayPendientes=(_pendienteATS&&!_confirmedATS)||(_pendienteGRII&&!_confirmedGRII)||(_pendienteGRIII&&!_confirmedGRIII);
+  if(hayPendientes){
+    window._beforeunloadActivo=true;
+  }else{
+    window._beforeunloadActivo=false;
+  }
+}
+
 function scored(oi,q0,guia){return(guia===2?G2_INV:G3_INV).has(q0)?(4-oi):oi;}
 function nivelG2(s){s=Number(s)||0;return s<=20?'Nulo':s<=45?'Bajo':s<=70?'Medio':s<=90?'Alto':'Muy Alto';}
 function nivelG3(s){s=Number(s)||0;return s<=50?'Nulo':s<=75?'Bajo':s<=99?'Medio':s<=140?'Alto':'Muy Alto';}
@@ -444,6 +526,51 @@ function finalizarATS(){
   if(!ATS_SEC1.every((_,i)=>atsAns[`s1_${i}`])){toast('Responde todas las preguntas de la Sección I');return;}
   buildSecciones();secIdx=0;renderSeccion();
   show('screen-preguntas');setProgress(10);
+  // ── Envío background de ATS (no bloqueante) ──────────────
+  _dispararSaveATS();
+}
+
+function _dispararSaveATS(){
+  if(!empleado)return;
+  const ts=_idEnvioActual?_idEnvioActual.split('_').slice(1).join('_'):new Date().toISOString();
+  if(!_idEnvioActual)_idEnvioActual=empleado.noemp+'_'+ts;
+  const fecha=new Date().toLocaleDateString('es-MX');
+  const base=_buildBase(ts,fecha);
+  const atsRespuestas={};
+  ATS_SEC1.forEach((_,i)=>{atsRespuestas[`s1_${i}`]=atsAns[`s1_${i}`]||'no';});
+  ATS_SEC2.forEach((_,i)=>{atsRespuestas[`s2_${i}`]=atsAns[`s2_${i}`]||'';});
+  ATS_SEC3.forEach((_,i)=>{atsRespuestas[`s3_${i}`]=atsAns[`s3_${i}`]||'';});
+  ATS_SEC4.forEach((_,i)=>{atsRespuestas[`s4_${i}`]=atsAns[`s4_${i}`]||'';});
+  const algSi=ATS_SEC1.some((_,i)=>atsAns[`s1_${i}`]==='si');
+  const atencion=algSi?evaluarATS():'No requiere';
+  const requiereValoracion=evaluarATS2();
+  const payload={
+    action:'saveATS',
+    idEnvio:_idEnvioActual+'_ATS',
+    ...base,
+    tipoEvento:'ATS',fechaEvento:fecha,atencion,requiereValoracion,
+    ...atsRespuestas
+  };
+  _pendienteATS=true;_confirmedATS=false;_actualizarGuardaBefore();
+  _queueAdd({...payload,idEnvio:_idEnvioActual+'_ATS'});
+  (async()=>{
+    try{
+      await _intentarEnvioSilencioso(payload);
+      _confirmedATS=true;_queueRemove(_idEnvioActual+'_ATS');
+      _actualizarGuardaBefore();
+      console.log('[NOM035] ATS enviado OK');
+      if(_todoConfirmado())_mostrarGracias();
+    }catch(e){
+      console.warn('[NOM035] ATS background falló:',e.message,'(quedó en cola)');
+    }
+  })();
+}
+
+function _buildBase(ts,fecha){
+  return{ts,fecha,noemp:empleado.noemp,nombre:empleado.nombre,
+    puesto:empleado.puesto,categoria:empleado.categoria||'',genero:'',edad:'',
+    dept:empleado.dept,subdept:empleado.subdept||'',planta:'México City',
+    turno:'Diurno',supervisor:'',ingreso:'',imss:'',manual:'N'};
 }
 
 function buildSecciones(){
@@ -601,10 +728,47 @@ function nextSec(){
       if(sin.length>0){toast(`Faltan ${sin.length} pregunta(s) por responder`);return;}
     }
   }
+  // ── Detectar fin de Guía II → disparar saveGRII en background ──
+  const secActual=secciones[secIdx];
+  const esUltimaG2=secActual&&secActual.phase==='g2'||secActual?.id?.startsWith('cli-g2')||secActual?.id?.startsWith('sup-g2');
+  const proxSec=secciones[secIdx+1];
+  const esTransicionG2aG3=esUltimaG2&&(!proxSec||(proxSec.phase==='g3'||proxSec?.id?.startsWith('amb3')||proxSec?.id?.startsWith('cli-g3')||proxSec?.id?.startsWith('sup-g3')));
+  if(esTransicionG2aG3&&!_confirmedGRII&&!_pendienteGRII){
+    _dispararSaveGRII();
+  }
+
   secIdx++;renderSeccion();window.scrollTo(0,0);
 }
 
 function prevSec(){if(secIdx>0){secIdx--;renderSeccion();window.scrollTo(0,0);}}
+
+function _dispararSaveGRII(){
+  if(!empleado)return;
+  const sc=calcScores();
+  const ts=_idEnvioActual?_idEnvioActual.split('_').slice(1).join('_'):new Date().toISOString();
+  if(!_idEnvioActual)_idEnvioActual=empleado.noemp+'_'+ts;
+  const fecha=new Date().toLocaleDateString('es-MX');
+  const base=_buildBase(ts,fecha);
+  const payload={
+    action:'saveGRII',
+    idEnvio:_idEnvioActual+'_GRII',
+    ...base,
+    score:sc.g2score,nivel:sc.g2nivel,...sc.g2cats
+  };
+  _pendienteGRII=true;_confirmedGRII=false;_actualizarGuardaBefore();
+  _queueAdd({...payload,idEnvio:_idEnvioActual+'_GRII'});
+  (async()=>{
+    try{
+      await _intentarEnvioSilencioso(payload);
+      _confirmedGRII=true;_queueRemove(_idEnvioActual+'_GRII');
+      _actualizarGuardaBefore();
+      console.log('[NOM035] GRII enviada OK');
+      if(_todoConfirmado())_mostrarGracias();
+    }catch(e){
+      console.warn('[NOM035] GRII background falló:',e.message,'(quedó en cola)');
+    }
+  })();
+}
 
 function calcScores(){
   const sumCat=(cats,ans,extra)=>{
@@ -675,7 +839,7 @@ function _mostrarBotonReintentar(payload){
   cont.style.display='block';
 }
 
-// ─── Envío único con saveAll, idEnvio, timeout y retry ──────
+// ─── Envío con keepalive:true, idEnvio, timeout y retry ──────
 async function _intentarEnvio(payload, intento){
   const TIMEOUT_MS=60000;
   const ctrl=new AbortController();
@@ -686,7 +850,8 @@ async function _intentarEnvio(payload, intento){
       method:'POST',
       body:JSON.stringify(payload),
       headers:{'Content-Type':'text/plain'},
-      signal:ctrl.signal
+      signal:ctrl.signal,
+      keepalive:true  // sobrevive cierre de pestaña durante navegación
     });
     clearTimeout(timer);
     if(!res.ok)throw new Error('HTTP '+res.status);
@@ -707,63 +872,93 @@ async function _intentarEnvio(payload, intento){
 }
 
 async function enviarEncuesta(){
-  if(_enviando)return;            // evitar doble disparo
-  if(secIdx<secciones.length)return; // no hemos llegado al final
+  // Esta función ahora sólo envía Guía III (ATS y GRII ya se enviaron en background)
+  if(_enviando)return;
+  if(secIdx<secciones.length)return;
 
   const sc=calcScores();
-  const ts=new Date().toISOString();
+  const ts=_idEnvioActual?_idEnvioActual.split('_').slice(1).join('_'):new Date().toISOString();
+  if(!_idEnvioActual)_idEnvioActual=empleado.noemp+'_'+ts;
   const fecha=new Date().toLocaleDateString('es-MX');
-  const base={ts,fecha,noemp:empleado.noemp,nombre:empleado.nombre,
-    puesto:empleado.puesto,categoria:empleado.categoria||'',genero:'',edad:'',
-    dept:empleado.dept,subdept:empleado.subdept||'',planta:'México City',
-    turno:'Diurno',supervisor:'',ingreso:'',imss:'',manual:'N'};
+  const base=_buildBase(ts,fecha);
 
-  // idEnvio único para deduplicación en GAS (noemp_timestamp)
-  const idEnvio=empleado.noemp+'_'+ts;
-
-  // Respuestas ATS individuales
-  const atsRespuestas={};
-  ATS_SEC1.forEach((_,i)=>{atsRespuestas[`s1_${i}`]=atsAns[`s1_${i}`]||'no';});
-  ATS_SEC2.forEach((_,i)=>{atsRespuestas[`s2_${i}`]=atsAns[`s2_${i}`]||'';});
-  ATS_SEC3.forEach((_,i)=>{atsRespuestas[`s3_${i}`]=atsAns[`s3_${i}`]||'';});
-  ATS_SEC4.forEach((_,i)=>{atsRespuestas[`s4_${i}`]=atsAns[`s4_${i}`]||'';});
-  const requiereValoracion=evaluarATS2();
-
-  // Payload único: saveAll (1 POST, 3 hojas en GAS)
   const payload={
-    action:'saveAll',
-    idEnvio,
-    base,
-    grii:{score:sc.g2score,nivel:sc.g2nivel,cats:sc.g2cats},
-    griii:{score:sc.g3score,nivel:sc.g3nivel,cats:sc.g3cats},
-    ats:{respuestas:atsRespuestas,requiereValoracion,
-         tipoEvento:'ATS',fechaEvento:fecha,atencion:sc.atencionATS}
+    action:'saveGRIII',
+    idEnvio:_idEnvioActual+'_GRIII',
+    ...base,
+    score:sc.g3score,nivel:sc.g3nivel,...sc.g3cats
   };
 
-  // Guardar backup en localStorage ANTES de intentar (para reintentar si todo falla)
-  try{localStorage.setItem('nom035_cdmx_backup_'+base.noemp, JSON.stringify(payload));}catch(_){}
+  // Guardar en cola ANTES de intentar
+  _queueAdd({...payload,idEnvio:_idEnvioActual+'_GRIII'});
+  _pendienteGRIII=true;_confirmedGRIII=false;_actualizarGuardaBefore();
 
   _setEnviando(true);
+  // Mostrar pantalla de espera mientras se envía
+  _mostrarEsperaEnvio();
 
   try{
     await _intentarEnvio(payload,0);
+    _confirmedGRIII=true;_queueRemove(_idEnvioActual+'_GRIII');
+    _actualizarGuardaBefore();
+    console.log('[NOM035] GRIII enviada OK — G3:',sc.g3score,'(',sc.g3nivel,')');
 
-    // Éxito
-    show('screen-gracias');setProgress(100);
-    document.getElementById('hdr-badge').textContent='Completado ✓';
-    console.log('[NOM035] Enviado OK — G2:',sc.g2score,'(',sc.g2nivel,') G3:',sc.g3score,'(',sc.g3nivel,')');
+    if(_todoConfirmado()){
+      _mostrarGracias();
+    }else{
+      // Esperar hasta que ATS/GRII también confirmen (máx 20s)
+      let esperas=0;
+      const intervalo=setInterval(()=>{
+        esperas++;
+        if(_todoConfirmado()||esperas>40){
+          clearInterval(intervalo);
+          _mostrarGracias();
+        }
+      },500);
+    }
     try{
       localStorage.setItem('nom035_cdmx_done_'+base.noemp,new Date().toISOString());
       localStorage.removeItem('nom035_cdmx_progreso');
-      localStorage.removeItem('nom035_cdmx_backup_'+base.noemp);
     }catch(_){}
   }catch(e){
-    console.error('[NOM035] Error envío (2 intentos):',e);
+    console.error('[NOM035] Error GRIII (2 intentos):',e);
     toast('No se pudo enviar. Usa el botón "Reintentar envío" cuando tengas conexión.',6000);
     _mostrarBotonReintentar(payload);
   }finally{
     _setEnviando(false);
   }
+}
+
+function _mostrarEsperaEnvio(){
+  // Reemplaza el contenido de sec-content con pantalla de espera
+  const el=document.getElementById('sec-content');
+  if(el)el.innerHTML=`<div style="text-align:center;padding:48px 20px">
+    <div style="font-size:40px;margin-bottom:16px">⏳</div>
+    <div style="font-size:17px;font-weight:700;color:#0D2B5A;margin-bottom:8px">Enviando tus respuestas…</div>
+    <div style="font-size:13px;color:#475569">No cierres esta ventana</div>
+    <div id="envio-progreso" style="margin-top:20px;font-size:12px;color:#94A3B8"></div>
+  </div>`;
+  const aviso=document.getElementById('aviso-enviando');
+  if(aviso)aviso.style.display='block';
+  // Actualizar indicador de progreso cada 500ms
+  const prog=document.getElementById('envio-progreso');
+  if(prog){
+    const update=()=>{
+      const p=[];
+      if(_pendienteATS)p.push('ATS '+(_confirmedATS?'✓':'…'));
+      if(_pendienteGRII)p.push('Guía II '+(_confirmedGRII?'✓':'…'));
+      p.push('Guía III '+(_confirmedGRIII?'✓':'…'));
+      prog.textContent=p.join('  ·  ');
+    };
+    update();
+    const t=setInterval(()=>{update();if(_todoConfirmado())clearInterval(t);},500);
+  }
+}
+
+function _mostrarGracias(){
+  show('screen-gracias');setProgress(100);
+  document.getElementById('hdr-badge').textContent='Completado ✓';
+  window._beforeunloadActivo=false;
 }
 
 // evaluarATS separado para uso en payload ATS (no depende de calcScores)
@@ -775,6 +970,42 @@ function evaluarATS2(){
   const s4=ATS_SEC4.filter((_,i)=>atsAns[`s4_${i}`]==='si').length>=2;
   return(s2||s3||s4)?'Sí':'No';
 }
+
+// ── beforeunload: aviso si hay envíos en vuelo ───────────────
+window._beforeunloadActivo=false;
+window.addEventListener('beforeunload',function(e){
+  if(window._beforeunloadActivo){
+    e.preventDefault();
+    e.returnValue='Tus respuestas se están enviando. ¿Seguro que deseas salir?';
+    return e.returnValue;
+  }
+});
+
+// ── pagehide / visibilitychange: sendBeacon de lo pendiente ──
+function _beaconPendientes(){
+  // Disparar beacon para cualquier item de la cola (fire-and-forget)
+  const q=_queueGet();
+  if(!q.length)return;
+  for(const item of q){
+    try{
+      const payload={...item};delete payload._addedAt;
+      const blob=new Blob([JSON.stringify(payload)],{type:'text/plain'});
+      navigator.sendBeacon(GAS_URL,blob);
+      console.log('[NOM035] sendBeacon para',item.idEnvio);
+    }catch(_){}
+  }
+}
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden')_beaconPendientes();
+});
+window.addEventListener('pagehide',function(){
+  _beaconPendientes();
+});
+
+// ── Al cargar: reintentar pendientes de sesiones anteriores ──
+window.addEventListener('load',function(){
+  setTimeout(_queueRetryPending,2000); // esperar 2s a que la página esté lista
+});
 </script>
 </body>
 </html>
